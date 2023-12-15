@@ -1,17 +1,24 @@
 const request = require('request');
-const breed = process.argv[2];
-const apiEndpoint = `https://api.thecatapi.com/v1/breeds/search?q=${breed}`;
+
+const fetchBreedDescription = function(breedName, callback) {
+const apiEndpoint = `https://api.thecatapi.com/v1/breeds/search?q=${breedName}`;
+
 request(apiEndpoint, (error, response, body) => {
   if (error) {
-    console.error('Error:', error);
+    callback(`Error: ${error.message}`, null);
   } else if (response.statusCode !== 200) {
-    console.error('Unexpected status code:', response.statusCode);
+    callback(`Unexpected status code: ${response.statusCode}`, null);
   } else {
     const data = JSON.parse(body);
-    if (data.length > 0 && data[0].name.toLowerCase() === breed.toLowerCase()) {
-      console.log(`${breed} found! Here is the data:`, data[0]);
+
+    if (data.length > 0 ) {
+      callback(null, data[0].description);
     } else {
-      console.error(`${breed} not found.`);
+      callback(`Breed not found.`, null);
     }
   }
-});
+})
+};
+
+
+module.exports = {fetchBreedDescription};
